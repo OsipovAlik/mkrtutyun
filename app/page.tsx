@@ -1,3 +1,4 @@
+import { BackgroundMusic } from "@/components/background-music";
 import { Blessing } from "@/components/blessing";
 import { Countdown } from "@/components/countdown";
 import { EventSchedule } from "@/components/event-schedule";
@@ -40,6 +41,7 @@ export default function Home() {
         <RsvpSection />
       </main>
       <SiteFooter />
+      <BackgroundMusic />
     </>
   );
 }

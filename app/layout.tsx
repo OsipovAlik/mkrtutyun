@@ -76,7 +76,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="hy" className={fontVariables}>
       <body className="min-h-full">
         <noscript>
-          <style>{`.reveal,.animate-rise,.animate-fade{opacity:1!important;transform:none!important}`}</style>
+          <style>{`.reveal,.animate-rise,.animate-fade{opacity:1!important;transform:none!important}.intro-gate{display:none!important}`}</style>
         </noscript>
         {children}
       </body>

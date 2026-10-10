@@ -137,6 +137,21 @@ body {
   animation: scroll-cue 2.4s var(--ease-soft) infinite;
 }
 
+@keyframes music-bar {
+  0%,
+  100% {
+    transform: scaleY(0.3);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.animate-music-bar {
+  transform-origin: bottom;
+  animation: music-bar 0.9s ease-in-out infinite;
+}
+
 .reveal {
   opacity: 0;
   transform: translateY(24px);
@@ -167,7 +182,8 @@ body {
 
   .animate-settle,
   .animate-glow,
-  .animate-scroll-cue {
+  .animate-scroll-cue,
+  .animate-music-bar {
     animation: none !important;
   }
 }

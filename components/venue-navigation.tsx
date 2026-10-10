@@ -30,9 +30,9 @@ export function VenueNavigation({ venue, description }: VenueNavigationProps) {
       </a>
 
       {/* Description */}
-      <p className="mt-5 mb-8 max-w-md text-[0.97rem] leading-relaxed text-muted">
+      {/* <p className="mt-5 mb-8 max-w-md text-[0.97rem] leading-relaxed text-muted">
         {description}
-      </p>
+      </p> */}
 
       {/* Action buttons */}
       <div className="mt-auto flex flex-col items-center gap-2">
