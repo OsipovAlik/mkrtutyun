@@ -3,14 +3,14 @@
  * Change the year, times, names or venues here — the whole site follows.
  */
 
-export const EVENT_YEAR = 2027;
+export const EVENT_YEAR = 2026;
 
 /** Armenia has been on UTC+4 year-round (no DST) since 2012. */
 export const EVENT_TIME_ZONE = "Asia/Yerevan";
 export const EVENT_UTC_OFFSET = "+04:00";
 
-const MONTH = 3;
-const DAY = 20;
+const MONTH = 10;
+const DAY = 25;
 
 export type Coordinates = {
   lat: number;
