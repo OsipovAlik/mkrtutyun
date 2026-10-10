@@ -6,7 +6,6 @@ import { ArmenianCross, CornerFlourish, OliveBranch } from "./ornaments";
 
 export function Hero() {
   const { weekday, day, month, year } = eventDateParts();
-  const [first, second] = eventConfig.childrenGenitiveNames;
 
   return (
     <section
@@ -53,16 +52,19 @@ export function Hero() {
           <ArmenianCross className="h-11 w-auto text-gold-soft drop-shadow-[0_0_12px_rgba(232,214,170,0.45)]" />
         </div>
 
-        <p className="animate-rise font-serif text-base tracking-[0.06em] text-[#efe2c4] [text-shadow:0_1px_14px_rgba(30,26,18,0.75)] [animation-delay:400ms] sm:text-lg">
-          Սիրով հրավիրում ենք Ձեզ
+        <p className="animate-rise font-serif text-lg tracking-[0.24em] uppercase text-[#efe2c4] [text-shadow:0_1px_14px_rgba(30,26,18,0.75)] [animation-delay:400ms] sm:text-2xl">
+          Սիրելի հյուրեր
         </p>
 
-        <h1 className="mt-6 animate-rise [text-shadow:0_2px_24px_rgba(30,26,18,0.45)] font-serif leading-[1.12] font-medium [animation-delay:650ms]">
-          <span className="block text-[2.6rem] sm:text-6xl lg:text-7xl">
-            {first} և {second}
+        <h1 className="mt-6 animate-rise [text-shadow:0_2px_24px_rgba(30,26,18,0.45)] font-serif leading-[1.2] [animation-delay:650ms]">
+          <span className="block text-base font-normal tracking-[0.04em] text-ivory/90 sm:text-xl lg:text-2xl">
+            Սիրով հրավիրում ենք Ձեզ կիսելու մեզ հետ
           </span>
-          <span className="mt-2 block text-[2.35rem] tracking-[0.02em] sm:mt-3 sm:text-[3.4rem] lg:text-[4.1rem]">
-            Մկրտությունը
+          <span className="mt-4 block text-[2.85rem] font-medium text-white sm:mt-5 sm:text-6xl lg:text-7xl">
+            Աննայի և Հայկի
+          </span>
+          <span className="mt-2 block text-base font-normal tracking-[0.04em] text-ivory/90 sm:mt-3 sm:text-xl lg:text-2xl">
+            Սուրբ Մկրտության լուսավոր օրը
           </span>
         </h1>
 
@@ -71,8 +73,8 @@ export function Hero() {
           <OliveBranch className="h-6 w-24 sm:w-28" />
         </div>
 
-        <p className="mt-6 max-w-xl animate-rise text-[0.98rem] leading-relaxed text-ivory/85 [animation-delay:1100ms] sm:text-lg sm:leading-relaxed">
-          Մեր փոքրիկների կյանքի այս օրհնյալ օրը ցանկանում ենք կիսել Ձեզ՝ մեր հարազատների և սիրելի մարդկանց հետ։
+        <p className="mt-6 max-w-xl animate-rise font-serif text-lg tracking-[0.06em] text-ivory/90 [animation-delay:1100ms] sm:text-2xl">
+          Սպասում ենք Ձեզ
         </p>
 
         <time

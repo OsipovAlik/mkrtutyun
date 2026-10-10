@@ -26,12 +26,12 @@ export function eventDateParts() {
     weekday,
     day: String(day),
     month: MONTHS_GENITIVE[month - 1],
-    year: `${year} թ.`,
+    year: String(year),
   };
 }
 
-/** «Կիրակի, 25 հոկտեմբերի, 2026 թ.» */
+/** «Շաբաթ, 20 մարտի, 2027 թ.» */
 export function formatEventDate() {
   const { weekday, day, month, year } = eventDateParts();
-  return `${weekday}, ${day} ${month}, ${year}`;
+  return `${weekday}, ${day} ${month}, ${year} թ.`;
 }

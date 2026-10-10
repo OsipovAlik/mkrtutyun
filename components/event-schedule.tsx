@@ -1,7 +1,8 @@
 import Image from "next/image";
-import { Clock, MapPin } from "lucide-react";
-import { eventConfig, eventDateTimeISO, googleMapsUrl, type ScheduleItem } from "@/lib/event-config";
+import { Clock } from "lucide-react";
+import { eventConfig, eventDateTimeISO, type ScheduleItem } from "@/lib/event-config";
 import { formatEventDate } from "@/lib/armenian-date";
+import { VenueNavigation } from "./venue-navigation";
 import { BraidBand } from "./ornaments";
 import { Reveal } from "./reveal";
 import { SectionHeading } from "./section-heading";
@@ -73,26 +74,7 @@ function EventCard({ item, priority }: { item: ScheduleItem; priority: boolean }
 
         <h3 className="mt-4 font-serif text-2xl leading-snug text-ink sm:text-[1.7rem]">{item.title}</h3>
 
-        <p className="mt-3 font-serif text-lg text-balance text-olive">
-          <MapPin aria-hidden="true" className="mr-1.5 inline size-4 -translate-y-px stroke-[1.25] align-middle text-gold-ink" />
-          <span>
-            {item.venue.name}
-            {item.venue.address ? <span className="block text-sm text-muted">{item.venue.address}</span> : null}
-          </span>
-        </p>
-
-        <p className="mt-5 mb-8 max-w-md text-[0.97rem] leading-relaxed text-muted">{item.description}</p>
-
-        <a
-          href={googleMapsUrl(item.venue)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-auto inline-flex items-center gap-2 rounded-full border border-olive/70 px-6 py-3 text-sm tracking-[0.06em] text-olive transition-colors duration-300 hover:bg-olive hover:text-ivory"
-          aria-label={`Դիտել քարտեզը՝ ${item.venue.name} (բացվում է նոր պատուհանում)`}
-        >
-          <MapPin aria-hidden="true" className="size-4 stroke-[1.5]" />
-          Դիտել քարտեզը
-        </a>
+        <VenueNavigation venue={item.venue} description={item.description} />
       </div>
     </article>
   );

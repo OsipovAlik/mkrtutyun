@@ -19,7 +19,9 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const [first, second] = eventConfig.monogram;
+  const monogram = eventConfig.monogram as readonly string[];
+  const first = monogram[0];
+  const second = monogram[1];
 
   return (
     <header
@@ -40,8 +42,12 @@ export function SiteHeader() {
           aria-label="Վերադառնալ սկիզբ"
         >
           {first}
-          <span className="mx-1.5 text-sm text-gold">և</span>
-          {second}
+          {second ? (
+            <>
+              <span className="mx-1.5 text-sm text-gold">և</span>
+              {second}
+            </>
+          ) : null}
         </a>
         <div className="flex items-center gap-5 sm:gap-8">
           <ul className="hidden items-center gap-8 text-[0.8rem] tracking-[0.08em] text-muted md:flex">
