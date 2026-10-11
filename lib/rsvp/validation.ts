@@ -1,5 +1,3 @@
-import { eventConfig } from "../event-config";
-
 export type Attendance = "yes" | "no";
 
 export type RsvpInput = {
@@ -9,21 +7,37 @@ export type RsvpInput = {
   guests: number;
 };
 
+export type RsvpRecord = RsvpInput & { submittedAt: string };
+
+export type RsvpSummary = {
+  totalGuests: number;
+  attendingResponses: number;
+  declinedResponses: number;
+};
+
+export function summarize(records: RsvpRecord[]): RsvpSummary {
+  const attending = records.filter((r) => r.attendance === "yes");
+  return {
+    totalGuests: attending.reduce((sum, r) => sum + r.guests, 0),
+    attendingResponses: attending.length,
+    declinedResponses: records.length - attending.length,
+  };
+}
+
 export type RsvpFieldErrors = Partial<Record<"name" | "attendance" | "guests", string>>;
 
 export const NAME_MAX = 80;
-const { maxGuests } = eventConfig.rsvp;
 
 export const rsvpMessages = {
   nameRequired: "Խնդրում ենք նշել Ձեր անունը և ազգանունը։",
   nameTooLong: `Անունը չպետք է գերազանցի ${NAME_MAX} նիշը։`,
   attendanceRequired: "Խնդրում ենք ընտրել պատասխաններից մեկը։",
-  guestsRange: `Հյուրերի քանակը պետք է լինի 1-ից մինչև ${maxGuests}։`,
+  guestsRange: (max: number) => `Հյուրերի քանակը պետք է լինի 1-ից մինչև ${max}։`,
   saveFailed:
     "Ցավոք, այս պահին չհաջողվեց պահպանել Ձեր պատասխանը։ Խնդրում ենք փորձել մի փոքր ուշ կամ կապվել մեզ հետ անմիջապես։",
   success: "Շնորհակալ ենք Ձեր պատասխանի համար։ Սիրով սպասում ենք Ձեզ։",
   successDeclined: "Շնորհակալ ենք Ձեր պատասխանի համար։ Այդ օրը Դուք մեր մտքերում և սրտում կլինեք։",
-} as const;
+};
 
 export type RsvpState =
   | { status: "idle" }
@@ -32,11 +46,14 @@ export type RsvpState =
   | { status: "success"; attendance: Attendance };
 
 /** Runs identically in the browser (instant feedback) and on the server (source of truth). */
-export function validateRsvp(raw: {
-  name: unknown;
-  attendance: unknown;
-  guests: unknown;
-}): { ok: true; data: RsvpInput } | { ok: false; errors: RsvpFieldErrors } {
+export function validateRsvp(
+  raw: {
+    name: unknown;
+    attendance: unknown;
+    guests: unknown;
+  },
+  maxGuests = 10
+): { ok: true; data: RsvpInput } | { ok: false; errors: RsvpFieldErrors } {
   const errors: RsvpFieldErrors = {};
 
   const name = typeof raw.name === "string" ? raw.name.trim().replace(/\s+/g, " ") : "";
@@ -51,7 +68,7 @@ export function validateRsvp(raw: {
   if (attendance === "yes") {
     guests = Number(raw.guests);
     if (!Number.isInteger(guests) || guests < 1 || guests > maxGuests) {
-      errors.guests = rsvpMessages.guestsRange;
+      errors.guests = rsvpMessages.guestsRange(maxGuests);
     }
   }
 

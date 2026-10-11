@@ -1,42 +1,39 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { eventConfig } from "@/lib/event-config";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { SiteContent } from "@/lib/content/types";
+import { DEFAULT_CONTENT } from "@/lib/content/defaults";
 import { ArmenianCross, CornerFlourish } from "./ornaments";
 
-const SRC = "/sound/sound.mp3";
-const VOLUME = 0.5;
 /** Only these count as a "user gesture" for browser autoplay rules (touchstart does not). */
 const UNLOCK_EVENTS = ["pointerup", "click", "touchend", "keydown"] as const;
 const GATE_FADE_MS = 900;
 
-/**
- * Invitation music, on by default.
- *
- * Browsers refuse to start audible audio before the visitor interacts with the
- * page, so the invitation opens behind a short welcome screen: tapping
- * «Բացել հրավերը» is the gesture that starts the music, then the screen fades
- * away. As a safety net, any other first tap/key also starts it.
- * A floating button lets guests mute or resume afterwards.
- */
-export function BackgroundMusic() {
+export function BackgroundMusic({ content = DEFAULT_CONTENT }: { content?: SiteContent }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [playing, setPlaying] = useState(false);
-  const [gate, setGate] = useState<"shown" | "leaving" | "gone">("shown");
+  const [gate, setGate] = useState<"shown" | "leaving" | "gone">(
+    content.intro.enabled ? "shown" : "gone"
+  );
   // Once the visitor mutes, never auto-resume on later interactions.
   const userPausedRef = useRef(false);
 
-  const play = () => {
+  const musicEnabled = content.music.enabled && Boolean(content.music.src);
+  const volume = content.music.volume ?? 0.5;
+
+  const play = useCallback(() => {
+    if (!musicEnabled) return;
     const audio = audioRef.current;
     if (!audio || userPausedRef.current) return;
     audio.play().catch(() => {});
-  };
+  }, [musicEnabled]);
 
   useEffect(() => {
+    if (!musicEnabled) return;
     const audio = audioRef.current;
     if (!audio) return;
-    audio.volume = VOLUME;
+    audio.volume = volume;
 
     const removeUnlock = () =>
       UNLOCK_EVENTS.forEach((e) => window.removeEventListener(e, unlock, true));
@@ -48,13 +45,12 @@ export function BackgroundMusic() {
       play();
     }
 
-    // Some browsers (e.g. desktop Chrome for returning visitors) allow it straight away.
     audio.play().catch(() => {
       UNLOCK_EVENTS.forEach((e) => window.addEventListener(e, unlock, true));
     });
 
     return removeUnlock;
-  }, []);
+  }, [musicEnabled, volume, play]);
 
   // Keep the page still while the welcome screen is up.
   useEffect(() => {
@@ -85,18 +81,24 @@ export function BackgroundMusic() {
     }
   }
 
+  if (!musicEnabled && !content.intro.enabled) {
+    return null;
+  }
+
   return (
     <>
-      <audio
-        ref={audioRef}
-        src={SRC}
-        loop
-        preload="auto"
-        onPlay={() => setPlaying(true)}
-        onPause={() => setPlaying(false)}
-      />
+      {musicEnabled ? (
+        <audio
+          ref={audioRef}
+          src={content.music.src}
+          loop
+          preload="auto"
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+        />
+      ) : null}
 
-      {gate !== "gone" && (
+      {content.intro.enabled && gate !== "gone" && (
         <div
           role="dialog"
           aria-modal="true"
@@ -129,13 +131,13 @@ export function BackgroundMusic() {
             </div>
 
             <p className="animate-rise text-xs tracking-[0.32em] text-gold-ink uppercase [animation-delay:200ms] sm:text-sm">
-              Սուրբ Մկրտություն
+              {content.intro.eyebrow || "Սուրբ Մկրտություն"}
             </p>
             <h2
               id="intro-gate-title"
               className="mt-5 animate-rise font-serif text-4xl font-medium text-ink [animation-delay:400ms] sm:text-6xl"
             >
-              {eventConfig.childrenGenitive}
+              {content.people.genitive}
             </h2>
 
             <button
@@ -145,44 +147,48 @@ export function BackgroundMusic() {
               onClick={openInvitation}
               className="group mt-12 inline-flex animate-rise items-center gap-3 rounded-full border border-gold bg-ivory/70 px-8 py-3.5 font-serif text-base tracking-[0.12em] text-gold-ink shadow-[0_8px_30px_-12px_rgba(122,98,52,0.45)] transition duration-500 [animation-delay:700ms] hover:bg-olive hover:border-olive hover:text-ivory sm:text-lg"
             >
-              <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 18V5l11-2v13" />
-                <circle cx="6" cy="18" r="3" />
-                <circle cx="17" cy="16" r="3" />
-              </svg>
-              Բացել հրավերը
+              {musicEnabled ? (
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 18V5l11-2v13" />
+                  <circle cx="6" cy="18" r="3" />
+                  <circle cx="17" cy="16" r="3" />
+                </svg>
+              ) : null}
+              {content.intro.buttonLabel || "Բացել հրավերը"}
             </button>
           </div>
         </div>
       )}
 
-      <button
-        ref={buttonRef}
-        id="music-toggle"
-        type="button"
-        onClick={toggle}
-        aria-label={playing ? "Անջատել երաժշտությունը" : "Միացնել երաժշտությունը"}
-        aria-pressed={playing}
-        className="fixed right-4 bottom-4 z-50 flex size-12 items-center justify-center rounded-full border border-gold-soft/40 bg-olive/85 text-gold-soft shadow-lg backdrop-blur-md transition hover:scale-105 hover:bg-olive focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold sm:right-6 sm:bottom-6"
-      >
-        {playing ? (
-          <span aria-hidden="true" className="flex h-4 items-end gap-[3px]">
-            {[0, 1, 2, 3].map((i) => (
-              <span
-                key={i}
-                className="animate-music-bar h-full w-[3px] rounded-full bg-current"
-                style={{ animationDelay: `${i * 0.15}s` }}
-              />
-            ))}
-          </span>
-        ) : (
-          <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 18V5l11-2v13" />
-            <circle cx="6" cy="18" r="3" />
-            <circle cx="17" cy="16" r="3" />
-          </svg>
-        )}
-      </button>
+      {musicEnabled ? (
+        <button
+          ref={buttonRef}
+          id="music-toggle"
+          type="button"
+          onClick={toggle}
+          aria-label={playing ? "Անջատել երաժշտությունը" : "Միացնել երաժշտությունը"}
+          aria-pressed={playing}
+          className="fixed right-4 bottom-4 z-50 flex size-12 items-center justify-center rounded-full border border-gold-soft/40 bg-olive/85 text-gold-soft shadow-lg backdrop-blur-md transition hover:scale-105 hover:bg-olive focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold sm:right-6 sm:bottom-6"
+        >
+          {playing ? (
+            <span aria-hidden="true" className="flex h-4 items-end gap-[3px]">
+              {[0, 1, 2, 3].map((i) => (
+                <span
+                  key={i}
+                  className="animate-music-bar h-full w-[3px] rounded-full bg-current"
+                  style={{ animationDelay: `${i * 0.15}s` }}
+                />
+              ))}
+            </span>
+          ) : (
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 18V5l11-2v13" />
+              <circle cx="6" cy="18" r="3" />
+              <circle cx="17" cy="16" r="3" />
+            </svg>
+          )}
+        </button>
+      ) : null}
     </>
   );
 }

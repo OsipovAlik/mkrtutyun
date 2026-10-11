@@ -1,4 +1,5 @@
 import { isAdmin } from "@/lib/admin-auth";
+import { getContent } from "@/lib/content/store";
 import { listRsvps, saveRsvp, summarize } from "@/lib/rsvp/store";
 import { rsvpMessages, validateRsvp } from "@/lib/rsvp/validation";
 
@@ -22,7 +23,11 @@ export async function POST(request: Request) {
   // Honeypot: real guests never fill this hidden field.
   if (body.website) return Response.json({ ok: true }, { status: 201 });
 
-  const result = validateRsvp({ name: body.name, attendance: body.attendance, guests: body.guests });
+  const content = await getContent();
+  const result = validateRsvp(
+    { name: body.name, attendance: body.attendance, guests: body.guests },
+    content.rsvp.maxGuests
+  );
   if (!result.ok) return Response.json({ errors: result.errors }, { status: 400 });
 
   const saved = await saveRsvp(result.data);

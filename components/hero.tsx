@@ -1,11 +1,16 @@
 import Image from "next/image";
-import heroImage from "@/public/images/hero-etchmiadzin.png";
-import { eventConfig, eventDateTimeISO } from "@/lib/event-config";
+import heroDefaultImage from "@/public/images/hero-etchmiadzin.png";
+import type { SiteContent } from "@/lib/content/types";
+import { DEFAULT_CONTENT } from "@/lib/content/defaults";
+import { eventDateTimeISO } from "@/lib/event-config";
 import { eventDateParts, formatEventDate } from "@/lib/armenian-date";
 import { ArmenianCross, CornerFlourish, OliveBranch } from "./ornaments";
 
-export function Hero() {
-  const { weekday, day, month, year } = eventDateParts();
+export function Hero({ content = DEFAULT_CONTENT }: { content?: SiteContent }) {
+  const { weekday, day, month, year } = eventDateParts(content.event);
+  const startTime = content.program.items[0]?.time ?? "15:20";
+  const imageSrc = content.hero.image.src || "/images/hero-etchmiadzin.png";
+  const isDefaultImage = imageSrc === "/images/hero-etchmiadzin.png";
 
   return (
     <section
@@ -13,15 +18,28 @@ export function Hero() {
       className="relative isolate flex min-h-svh items-center justify-center overflow-hidden bg-olive-deep text-ivory"
     >
       <div className="absolute inset-0 -z-20 animate-settle">
-        <Image
-          src={heroImage}
-          alt="Էջմիածնի Մայր տաճարը աշնանային լույսի ներքո"
-          fill
-          preload
-          placeholder="blur"
-          sizes="100vw"
-          className="object-cover object-[50%_35%]"
-        />
+        {isDefaultImage ? (
+          <Image
+            src={heroDefaultImage}
+            alt={content.hero.image.alt || "Էջմիածնի Մայր տաճարը աշնանային լույսի ներքո"}
+            fill
+            preload
+            placeholder="blur"
+            sizes="100vw"
+            className="object-cover"
+            style={{ objectPosition: content.hero.image.position || "50% 35%" }}
+          />
+        ) : (
+          <Image
+            src={imageSrc}
+            alt={content.hero.image.alt || "Գլխավոր լուսանկար"}
+            fill
+            preload
+            sizes="100vw"
+            className="object-cover"
+            style={{ objectPosition: content.hero.image.position || "50% 35%" }}
+          />
+        )}
       </div>
       {/* Warm, candle-like veil so ivory text reads over the photograph. */}
       <div
@@ -52,20 +70,26 @@ export function Hero() {
           <ArmenianCross className="h-11 w-auto text-gold-soft drop-shadow-[0_0_12px_rgba(232,214,170,0.45)]" />
         </div>
 
-        <p className="animate-rise font-serif text-lg tracking-[0.24em] uppercase text-[#efe2c4] [text-shadow:0_1px_14px_rgba(30,26,18,0.75)] [animation-delay:400ms] sm:text-2xl">
-          Սիրելի հյուրեր
-        </p>
+        {content.hero.greeting ? (
+          <p className="animate-rise font-serif text-lg tracking-[0.24em] uppercase text-[#efe2c4] [text-shadow:0_1px_14px_rgba(30,26,18,0.75)] [animation-delay:400ms] sm:text-2xl">
+            {content.hero.greeting}
+          </p>
+        ) : null}
 
         <h1 className="mt-6 animate-rise [text-shadow:0_2px_24px_rgba(30,26,18,0.45)] font-serif leading-[1.2] [animation-delay:650ms]">
-          <span className="block text-base font-normal tracking-[0.04em] text-ivory/90 sm:text-xl lg:text-2xl">
-            Սիրով հրավիրում ենք Ձեզ կիսելու մեզ հետ
-          </span>
+          {content.hero.inviteLine ? (
+            <span className="block text-base font-normal tracking-[0.04em] text-ivory/90 sm:text-xl lg:text-2xl">
+              {content.hero.inviteLine}
+            </span>
+          ) : null}
           <span className="mt-4 block text-[2.85rem] font-medium text-white sm:mt-5 sm:text-6xl lg:text-7xl">
-            Աննայի և Հայկի
+            {content.people.genitive}
           </span>
-          <span className="mt-2 block text-base font-normal tracking-[0.04em] text-ivory/90 sm:mt-3 sm:text-xl lg:text-2xl">
-            Սուրբ Մկրտության լուսավոր օրը
-          </span>
+          {content.hero.subtitle ? (
+            <span className="mt-2 block text-base font-normal tracking-[0.04em] text-ivory/90 sm:mt-3 sm:text-xl lg:text-2xl">
+              {content.hero.subtitle}
+            </span>
+          ) : null}
         </h1>
 
         <div className="mt-7 flex animate-rise items-center gap-3 text-gold-soft/90 [animation-delay:900ms]" aria-hidden="true">
@@ -73,15 +97,17 @@ export function Hero() {
           <OliveBranch className="h-6 w-24 sm:w-28" />
         </div>
 
-        <p className="mt-6 max-w-xl animate-rise font-serif text-lg tracking-[0.06em] text-ivory/90 [animation-delay:1100ms] sm:text-2xl">
-          Սպասում ենք Ձեզ
-        </p>
+        {content.hero.closing ? (
+          <p className="mt-6 max-w-xl animate-rise font-serif text-lg tracking-[0.06em] text-ivory/90 [animation-delay:1100ms] sm:text-2xl">
+            {content.hero.closing}
+          </p>
+        ) : null}
 
         <time
-          dateTime={eventDateTimeISO(eventConfig.schedule[0].time)}
+          dateTime={eventDateTimeISO(startTime, content.event, content.event.utcOffset)}
           className="mt-10 flex animate-rise flex-col items-center [animation-delay:1350ms]"
         >
-          <span className="sr-only">{formatEventDate()}</span>
+          <span className="sr-only">{formatEventDate(content.event)}</span>
           <span aria-hidden="true" className="text-xs tracking-[0.3em] text-gold-soft uppercase sm:text-sm">
             {weekday}
           </span>

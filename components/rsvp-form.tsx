@@ -10,7 +10,8 @@ import {
   type RsvpFieldErrors,
   type RsvpState,
 } from "@/lib/rsvp/validation";
-import { eventConfig } from "@/lib/event-config";
+import type { SiteContent } from "@/lib/content/types";
+import { DEFAULT_CONTENT } from "@/lib/content/defaults";
 import { ArmenianCross } from "./ornaments";
 
 const initialState: RsvpState = { status: "idle" };
@@ -37,14 +38,8 @@ async function submitRsvp(_prev: RsvpState, formData: FormData): Promise<RsvpSta
   }
   return { status: "error", message: rsvpMessages.saveFailed };
 }
-const { maxGuests } = eventConfig.rsvp;
 
-const options: { value: Attendance; label: string }[] = [
-  { value: "yes", label: "Սիրով կմասնակցեմ" },
-  { value: "no", label: "Ցավոք, չեմ կարողանա ներկա լինել" },
-];
-
-export function RsvpForm() {
+export function RsvpForm({ config = DEFAULT_CONTENT.rsvp }: { config?: SiteContent["rsvp"] }) {
   const [state, formAction, pending] = useActionState(submitRsvp, initialState);
   const [name, setName] = useState("");
   const [attendance, setAttendance] = useState<Attendance | "">("");
@@ -52,6 +47,12 @@ export function RsvpForm() {
   const [clientErrors, setClientErrors] = useState<RsvpFieldErrors>({});
   const successRef = useRef<HTMLDivElement>(null);
   const errorSummaryRef = useRef<HTMLParagraphElement>(null);
+
+  const maxGuests = config.maxGuests || 10;
+  const options: { value: Attendance; label: string }[] = [
+    { value: "yes", label: config.yesLabel || "Սիրով կմասնակցեմ" },
+    { value: "no", label: config.noLabel || "Ցավոք, չեմ կարողանա ներկա լինել" },
+  ];
 
   const errors: RsvpFieldErrors = { ...(state.status === "invalid" ? state.errors : {}), ...clientErrors };
 
@@ -61,7 +62,7 @@ export function RsvpForm() {
   }, [state]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    const result = validateRsvp({ name, attendance, guests });
+    const result = validateRsvp({ name, attendance, guests }, maxGuests);
     if (!result.ok) {
       event.preventDefault();
       setClientErrors(result.errors);
@@ -94,7 +95,7 @@ export function RsvpForm() {
           <Check aria-hidden="true" className="size-7 stroke-[1.25]" />
         </span>
         <p className="mt-8 max-w-md font-serif text-2xl leading-relaxed text-balance text-ink sm:text-[1.7rem]">
-          {state.attendance === "yes" ? rsvpMessages.success : rsvpMessages.successDeclined}
+          {state.attendance === "yes" ? config.success : config.successDeclined}
         </p>
         <ArmenianCross aria-hidden="true" className="mt-8 h-7 w-auto text-gold" />
       </div>
@@ -236,7 +237,7 @@ export function RsvpForm() {
               Ուղարկվում է…
             </>
           ) : (
-            "Հաստատել մասնակցությունը"
+            config.submitLabel || "Հաստատել մասնակցությունը"
           )}
         </button>
       </div>

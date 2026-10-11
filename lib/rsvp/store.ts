@@ -1,20 +1,8 @@
 import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import type { RsvpInput } from "./validation";
-
-/**
- * RSVP storage.
- *
- * - On Vercel: Upstash Redis (free tier, added from the Vercel Marketplace),
- *   used when its REST env vars are present. No extra npm package needed.
- * - Locally / self-hosted: a JSON file in `data/rsvps.json`.
- *
- * Responses are keyed by the guest's name, so if someone answers twice,
- * the latest answer replaces the earlier one (no double-counted guests).
- */
-
-export type RsvpRecord = RsvpInput & { submittedAt: string };
+import { type RsvpInput, type RsvpRecord, summarize } from "./validation";
+export { type RsvpRecord, summarize };
 
 export type SaveResult = { ok: true } | { ok: false };
 
@@ -93,13 +81,4 @@ export async function listRsvps(): Promise<RsvpRecord[]> {
     records = Object.values(await readFile());
   }
   return records.sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
-}
-
-export function summarize(records: RsvpRecord[]) {
-  const attending = records.filter((r) => r.attendance === "yes");
-  return {
-    totalGuests: attending.reduce((sum, r) => sum + r.guests, 0),
-    attendingResponses: attending.length,
-    declinedResponses: records.length - attending.length,
-  };
 }

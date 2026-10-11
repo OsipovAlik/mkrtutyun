@@ -1,16 +1,21 @@
 import Image from "next/image";
-import { eventConfig } from "@/lib/event-config";
+import type { SiteContent } from "@/lib/content/types";
+import { DEFAULT_CONTENT } from "@/lib/content/defaults";
 import { EternityRosette } from "./ornaments";
 import { Reveal } from "./reveal";
 import { SectionHeading } from "./section-heading";
 
-export function Gallery() {
-  const { enabled, photos } = eventConfig.gallery;
+export function Gallery({ content = DEFAULT_CONTENT }: { content?: SiteContent }) {
+  const { enabled, eyebrow, title, photos } = content.gallery;
   if (!enabled || photos.length === 0) return null;
 
   return (
     <section aria-labelledby="gallery-title" id="gallery" className="paper px-5 py-24 sm:px-8 sm:py-32">
-      <SectionHeading id="gallery-title" eyebrow="Լուսանկարներ" title="Մեր փոքրիկների լուսավոր աշխարհը" />
+      <SectionHeading
+        id="gallery-title"
+        eyebrow={eyebrow || "Լուսանկարներ"}
+        title={title || "Մեր փոքրիկների լուսավոր աշխարհը"}
+      />
 
       <ul className="mx-auto mt-14 grid max-w-6xl grid-cols-2 gap-3 sm:mt-16 sm:gap-5 md:grid-cols-4">
         {photos.map((photo, i) => {

@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { CEREMONY_START_ISO } from "@/lib/event-config";
 import { BraidBand } from "./ornaments";
 
-const TARGET = Date.parse(CEREMONY_START_ISO);
-
 const UNITS = [
   { key: "days", label: "Օր" },
   { key: "hours", label: "Ժամ" },
@@ -15,8 +13,8 @@ const UNITS = [
 
 type Remaining = Record<(typeof UNITS)[number]["key"], number>;
 
-function getRemaining(now: number): Remaining | null {
-  const diff = TARGET - now;
+function getRemaining(now: number, target: number): Remaining | null {
+  const diff = target - now;
   if (diff <= 0) return null;
   const s = Math.floor(diff / 1000);
   return {
@@ -27,23 +25,27 @@ function getRemaining(now: number): Remaining | null {
   };
 }
 
-/**
- * Counts down to the ceremony (an absolute instant in Asia/Yerevan time),
- * so it is correct whatever the visitor's own time zone.
- * Renders a neutral shell on the server, and disappears once the day has come.
- */
-export function Countdown() {
-  // `undefined` = not yet measured on the client; `null` = event has started.
+export function Countdown({
+  targetIso = CEREMONY_START_ISO,
+  title = "Մինչև մեր տոնը մնացել է",
+  enabled = true,
+}: {
+  targetIso?: string;
+  title?: string;
+  enabled?: boolean;
+}) {
   const [remaining, setRemaining] = useState<Remaining | null | undefined>(undefined);
 
   useEffect(() => {
-    const tick = () => setRemaining(getRemaining(Date.now()));
+    if (!enabled) return;
+    const target = Date.parse(targetIso);
+    const tick = () => setRemaining(getRemaining(Date.now(), target));
     tick();
     const id = window.setInterval(tick, 1000);
     return () => window.clearInterval(id);
-  }, []);
+  }, [targetIso, enabled]);
 
-  if (remaining === null) return null;
+  if (!enabled || remaining === null) return null;
 
   return (
     <section
@@ -55,7 +57,7 @@ export function Countdown() {
 
       <div className="mx-auto max-w-4xl text-center">
         <h2 id="countdown-title" className="text-xs tracking-[0.32em] text-gold-soft uppercase sm:text-sm">
-          Մինչև մեր տոնը մնացել է
+          {title}
         </h2>
 
         <div

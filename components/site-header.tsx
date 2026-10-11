@@ -1,15 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { eventConfig } from "@/lib/event-config";
+import type { SiteContent } from "@/lib/content/types";
+import { DEFAULT_CONTENT } from "@/lib/content/defaults";
 
-const links = [
-  { href: "#program", label: "Ծրագիր" },
-  { href: "#blessing", label: "Մաղթանք" },
-  { href: "#gallery", label: "Լուսանկարներ" },
-];
-
-export function SiteHeader() {
+export function SiteHeader({ content = DEFAULT_CONTENT }: { content?: SiteContent }) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -19,9 +14,15 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const monogram = eventConfig.monogram as readonly string[];
-  const first = monogram[0];
-  const second = monogram[1];
+  const monogram = content.people.names.map((n) => n[0] ?? "");
+  const first = monogram[0] ?? "";
+  const second = monogram[1] ?? "";
+
+  const links = [
+    { href: "#program", label: "Ծրագիր", show: true },
+    { href: "#blessing", label: "Մաղթանք", show: content.blessing.enabled },
+    { href: "#gallery", label: "Լուսանկարներ", show: content.gallery.enabled },
+  ].filter((l) => l.show);
 
   return (
     <header
@@ -62,12 +63,14 @@ export function SiteHeader() {
               </li>
             ))}
           </ul>
-          <a
-            href="#rsvp"
-            className="rounded-full border border-gold/60 px-4 py-1.5 text-[0.8rem] tracking-[0.06em] text-gold-ink transition-colors hover:bg-gold hover:text-ivory"
-          >
-            Պատասխանել
-          </a>
+          {content.rsvp.enabled ? (
+            <a
+              href="#rsvp"
+              className="rounded-full border border-gold/60 px-4 py-1.5 text-[0.8rem] tracking-[0.06em] text-gold-ink transition-colors hover:bg-gold hover:text-ivory"
+            >
+              Պատասխանել
+            </a>
+          ) : null}
         </div>
       </nav>
     </header>

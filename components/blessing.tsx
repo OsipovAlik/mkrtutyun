@@ -1,9 +1,11 @@
+import type { SiteContent } from "@/lib/content/types";
+import { DEFAULT_CONTENT } from "@/lib/content/defaults";
 import { EternityRosette, OliveBranch } from "./ornaments";
 import { Reveal } from "./reveal";
 
-const lines = ["Օրհնված լինի այս օրը,", "լույսով ու սիրով լցված՝", "Աննայի և Հայկի կյանքի յուրաքանչյուր քայլը։"];
+export function Blessing({ content = DEFAULT_CONTENT }: { content?: SiteContent }) {
+  if (!content.blessing.enabled || content.blessing.lines.length === 0) return null;
 
-export function Blessing() {
   return (
     <section
       id="blessing"
@@ -21,8 +23,8 @@ export function Blessing() {
         </Reveal>
 
         <blockquote className="mt-12 font-serif text-[1.55rem] leading-[1.6] font-light text-balance text-ink sm:text-[2.3rem] sm:leading-[1.6]">
-          {lines.map((line, i) => (
-            <Reveal as="span" key={line} delay={250 + i * 300} className="block">
+          {content.blessing.lines.map((line, i) => (
+            <Reveal as="span" key={line + i} delay={250 + i * 300} className="block">
               {line}
             </Reveal>
           ))}

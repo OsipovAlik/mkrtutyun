@@ -3,7 +3,7 @@ import { type Venue, googleNavigationUrl, googleMapsUrl } from "@/lib/event-conf
 
 interface VenueNavigationProps {
   venue: Venue;
-  description: string;
+  description?: string;
 }
 
 export function VenueNavigation({ venue, description }: VenueNavigationProps) {
@@ -29,10 +29,11 @@ export function VenueNavigation({ venue, description }: VenueNavigationProps) {
         </span>
       </a>
 
-      {/* Description */}
-      {/* <p className="mt-5 mb-8 max-w-md text-[0.97rem] leading-relaxed text-muted">
-        {description}
-      </p> */}
+      {description ? (
+        <p className="mt-3 mb-4 max-w-md text-[0.92rem] leading-relaxed text-muted">
+          {description}
+        </p>
+      ) : null}
 
       {/* Action buttons */}
       <div className="mt-auto flex flex-col items-center gap-2">
